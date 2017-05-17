@@ -1,22 +1,26 @@
+
 var NewForm = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
-    event_date: React.PropTypes.string,
+    event_date: React.PropTypes.instanceOf(Date),
     place: React.PropTypes.string,
-    description: React.PropTypes.string
+    description: React.PropTypes.string,
   },
   getInitialState: function() {
     return {
       name: '',
       place: '',
       event_date: '',
-      description: ''
+      description: '',
+      image: ''
     }
   },
   handleAdd: function(e) {
     e.preventDefault();
-    var self = this;
+    console.log(this.state);
+
     if (this.validForm()) {
+      var self = this;
       $.ajax({
         url: '/api/events',
         method: 'POST',
@@ -46,6 +50,22 @@ var NewForm = React.createClass({
     var value = e.target.value;
     this.setState({ [input_name] : value });
   },
+  handleFile: function(e) {
+    // Base64 converted
+    var reader = new FileReader();
+    var file = e.target.files[0];
+
+    reader.onload = (upload) => {
+      this.setState({
+        image: upload.target.result,
+        // filename: file.name,
+        // filetype: file.type
+        });
+      };
+
+      reader.readAsDataURL(file);
+    },
+
   render: function() {
     return(
       <form className="form-inline" onSubmit={this.handleAdd}>
@@ -84,6 +104,15 @@ var NewForm = React.createClass({
                  ref="description"
                  value={this.state.description}
                  onChange={this.handleChange} />
+        </div>
+
+        <div className="form-group">
+          <input type="file"
+                 className="form-control"
+                 name="image"
+                 ref="image"
+                 onChange={this.handleFile}
+                 />
         </div>
         <button type="submit" className="btn btn-primary">Add</button>
       </form>
